@@ -159,64 +159,7 @@ class ShopScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//       bottomNavigationBar: BottomNavigationBar(
-//         backgroundColor: Colors.indigo.shade700,
-//         selectedItemColor: Colors.white,
-//         unselectedItemColor: Colors.black,
-//         type: BottomNavigationBarType.fixed,
-//         items: const [
-//           BottomNavigationBarItem(
-//               icon: Icon(
-//                 Icons.home,
-//                 color: Colors.white,
-//               ),
-//               label: "home"),
-//           BottomNavigationBarItem(
-//               icon: Icon(
-//                 Icons.favorite_border,
-//                 color: Colors.white,
-//               ),
-//               label: "favorite"),
-//           BottomNavigationBarItem(
-//               icon: Icon(
-//                 Icons.payment,
-//                 color: Colors.white,
-//               ),
-//               label: "payment"),
-//           BottomNavigationBarItem(
-//               icon: Icon(
-//                 Icons.shopping_bag_outlined,
-//                 color: Colors.white,
-//               ),
-//               label: "shopping"),
-//           BottomNavigationBarItem(
-//               icon: Icon(
-//                 Icons.person,
-//                 color: Colors.white,
-//               ),
-//               label: "profile"),
-//         ],
-//         onTap: (index) {
-//           switch (index) {
-//             case 0: // Home
-//               // Get.to(FavoriteScreen());
-//               break;
-//             case 1: // Favorite
-//               Get.to(const FavoriteScreen());
-//               break;
-//             case 2: // Payment
-//               Get.to(PaymentScreen());
-//               break;
-//             case 3: // Shopping
-//               // Get.to(ShoppingCartScreen());
-//               break;
-//             case 4: // Profile
-//               Get.to(ProfileScreen());
-//               break;
-//           }
-//         },
-// //////////////////////////////////////////
-//       ),
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

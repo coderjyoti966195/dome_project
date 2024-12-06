@@ -115,7 +115,7 @@ import '../favorite_/favorites_controllers.dart';
 class ProductDetailScreen extends StatelessWidget {
   final Map<String, dynamic> products;
 
-  const ProductDetailScreen({Key? key, required this.products, required Map<String, String> product})
+    ProductDetailScreen({Key? key, required this.products, required Map<String, String> product})
       : super(key: key);
 
   @override
@@ -136,7 +136,7 @@ class ProductDetailScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.shopping_cart, color: Colors.white),
             onPressed: () {
-              Get.to(() => const CartScreen());
+              Get.to(() =>   CartScreen());
             },
           ),
           IconButton(

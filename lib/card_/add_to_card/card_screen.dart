@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'card_controller.dart';
 
 class CartScreen extends StatelessWidget {
-  const CartScreen({Key? key}) : super(key: key);
+    CartScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

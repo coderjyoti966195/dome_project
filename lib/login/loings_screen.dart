@@ -5,7 +5,7 @@ import '../home_/homr_screen.dart';
 import 'Register_Screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+    LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomepageScreen()),
+        MaterialPageRoute(builder: (context) =>   HomepageScreen()),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

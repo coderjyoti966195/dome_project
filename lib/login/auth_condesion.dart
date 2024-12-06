@@ -13,9 +13,9 @@ class AuthWrapper extends StatelessWidget {
     final FirebaseAuth auth = FirebaseAuth.instance;
 
     if (auth.currentUser != null) {
-      return const HomepageScreen(); // Redirect to Home if logged in
+      return   HomepageScreen(); // Redirect to Home if logged in
     } else {
-      return const LoginScreen(); // Redirect to Login
+      return   LoginScreen(); // Redirect to Login
     }
   }
 }

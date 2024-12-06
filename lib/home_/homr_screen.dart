@@ -9,7 +9,7 @@ import '../profile_/profile_screen.dart';
 import '../pruduct_/shop_screen.dart';
 
 class HomepageScreen extends StatefulWidget {
-  const HomepageScreen({super.key});
+    HomepageScreen({super.key});
   @override
   State<HomepageScreen> createState() => _HomepageScreenState();
 }
@@ -17,9 +17,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
   int _selectedIndex = 0;
   static final List<Widget> _pages = <Widget>[
     ShopScreen(),
-      // const FavoriteScreen(),
     PaymentScreen(),
-    const HistoryScreen(),
+    HistoryScreen(),
     ProfileScreen(),
   ];
 

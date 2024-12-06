@@ -45,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Navigate to HomePageScreen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomepageScreen()),
+        MaterialPageRoute(builder: (context) =>   HomepageScreen()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) =>   LoginScreen()),
                 );
               },
               child: const Text(
@@ -153,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomepageScreen()),
+                      MaterialPageRoute(builder: (context) =>   HomepageScreen()),
                     );
                   },
                   child: const Text(
