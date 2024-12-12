@@ -1,204 +1,182 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../home_/homr_screen.dart';
-import 'loings_screen.dart';
+import '../utils_/app_color.dart';
+import 'auth_controller.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class RegisterScreen extends StatelessWidget {
+  final AuthController controller = Get.find();
 
-  @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
-}
-
-class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  Future<void> _register() async {
-    if (_nameController.text.trim().isEmpty ||
-        _emailController.text.trim().isEmpty ||
-        _passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields")),
-      );
-      return;
-    }
-
-    try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
-      // Optional: Set display name
-      await userCredential.user?.updateDisplayName(_nameController.text.trim());
-      await userCredential.user?.reload(); // Reload the user.
-
-      final email = userCredential.user?.email ?? "No Email"; // Fallback
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Account created for $email!")),
-      );
-
-      // Navigate to HomePageScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) =>   HomepageScreen()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registration failed: $e")),
-      );
-    }
-  }
-
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: 140,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          title: const Text(
+            "Register",
+            style: TextStyle(color: AppColor.texCilor),
+          ),
+          backgroundColor: Colors.indigo[900]),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           children: [
-            const Text(
-              "SignUp",
-              style: TextStyle(color: Colors.white, fontSize: 30),
-            ),
-            const SizedBox(height: 8),
             GestureDetector(
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) =>   LoginScreen()),
-                );
+              onTap: () => controller.pickImage(),
+              child: Obx(() => CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey,
+                backgroundImage: controller.profileImage.value != null
+                    ? FileImage(controller.profileImage.value!)
+                    : null,
+                child: controller.profileImage.value == null
+                    ? const Icon(Icons.person,
+                    size: 60, color: Colors.white)
+                    : null,
+              )),
+            ),
+            const SizedBox(height: 20),
+            buildTextField(
+              "Name",
+              nameController,
+              Icons.person,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Please enter your name";
+                }
+                return null;
               },
-              child: const Text(
-                "Already have Account? Login",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  decoration: TextDecoration.none,
+            ),
+            const SizedBox(height: 20),
+            buildTextField(
+              "Email",
+              emailController,
+              Icons.email,
+              validator: (value) {
+                if (value == null || !value.contains('@')) {
+                  return "Please enter a valid email";
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
+            buildTextField(
+              "Phone",
+              phoneController,
+              Icons.phone,
+              keyboardType: TextInputType.number,
+              maxLength: 10,
+              validator: (value) {
+                if (value == null || value.length != 10) {
+                  return "Please enter a 10-digit phone number";
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 20),
+            buildTextField(
+              "Password",
+              passwordController,
+              Icons.lock,
+              maxLength: 6,
+              isPassword: true,
+              validator: (value) {
+                if (value == null || value.length < 6) {
+                  return "Password must be at least 6 characters";
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
+            Obx(() => controller.isLoading.value
+                ? const CircularProgressIndicator()
+                : Container(
+              width: 200,
+              child: ElevatedButton(
+                onPressed: () {
+                  controller.registerUser(
+                    name: nameController.text.trim(),
+                    email: emailController.text.trim(),
+                    phone: phoneController.text.trim(),
+                    password: passwordController.text.trim(),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo[900],
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
+                child: const Text("Register Now",
+                    style: TextStyle(color: Colors.white)),
+              ),
+            )),
+            SizedBox(height: 20),
+            Text.rich(
+              TextSpan(
+                text: 'Already have an account? ',
+                style: TextStyle(color: Colors.black, fontSize: 20),
+                children: [
+                  TextSpan(
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Get.toNamed('/login');
+                      },
+                    text: 'Login',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-        backgroundColor: Colors.indigo.shade500,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 40),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Name",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-                CustomTextField(
-                  controller: _nameController,
-                  hintText: "Enter your name",
-                ),
-                const SizedBox(height: 16),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Email",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-                CustomTextField(
-                  controller: _emailController,
-                  hintText: "Enter your email",
-                ),
-                const SizedBox(height: 16),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Password",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-                CustomTextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  hintText: "Enter your password",
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _register,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo.shade500,
-                    minimumSize: const Size(double.infinity, 40),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
-                  child: const Text(
-                    "Register",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) =>   HomepageScreen()),
-                    );
-                  },
-                  child: const Text(
-                    "_____ or SignIn using _____",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
-}
 
-class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final bool obscureText;
-  final String hintText;
-
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    this.obscureText = false,
-    required this.hintText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(4),
+  buildTextField(
+      String hintText,
+      TextEditingController controller,
+      IconData icon, {
+        bool obscureText = false,
+        FormFieldValidator<String>? validator,
+        Widget? suffixIcon,
+        int? maxLength,
+        bool isPassword = false,
+        TextInputType? keyboardType,
+      }) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.red),
+          suffixIcon: suffixIcon,
           hintText: hintText,
-          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          counterText: "",
+          contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         ),
+        maxLength: maxLength,
+        validator: validator,
+        keyboardType: keyboardType,
       ),
     );
   }

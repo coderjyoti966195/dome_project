@@ -1,217 +1,205 @@
- import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
-import '../home_/homr_screen.dart';
 import 'Register_Screen.dart';
+import '../utils_/app_color.dart'; // Import GetX
 
 class LoginScreen extends StatefulWidget {
-    LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  Future<void> _login() async {
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-
-    // Check if email or password is empty
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in both email and password.")),
-      );
-      return; // Exit the method if fields are empty
-    }
-
-    // Password length check
-    if (password.length < 6) {  // Firebase requires at least 6 characters
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password must be at least 6 characters.")),
-      );
-      return; // Exit the method if password doesn't meet the requirement
-    }
-
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Welcome back, ${userCredential.user?.email}!")),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) =>   HomepageScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: ${e.message}")),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An unknown error occurred: $e")),
-      );
-    }
-  }
+  final _formKey = GlobalKey<FormState>();
+  final FirebaseAuth loginAuthentication = FirebaseAuth.instance;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool _isPasswordHidden = true; // State variable to track password visibility
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,  // Disable the default back button
-        toolbarHeight: 140,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Welcome Back!",
-              style: TextStyle(color: Colors.black, fontSize: 35),
-            ),
-            const SizedBox(height: 8),
-            Row(
+      //backgroundColor: Colors.green[50],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  "Don't have an account? ",
-                  style: TextStyle(color: Colors.black38, fontSize: 16),
+                Text(
+                  "Welcome Back!",
+                  style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.indigo[900],),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                    );
+                const SizedBox(height: 40),
+                buildTextField(
+                  controller: emailController,
+                  hintText: 'Enter Your Email',
+                  icon: Icons.email_outlined,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
                   },
-                  child: const Text(
-                    "SignUp",
-                    style: TextStyle(color: Colors.blue),
+                ),
+                const SizedBox(height: 20),
+                buildTextField(
+                  controller: passwordController,
+                  hintText: 'Enter Your Password',
+                  icon: Icons.lock_outline,
+                  obscureText: _isPasswordHidden, // Use the state variable
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    } else if (value.length < 6) {
+                      return 'Password should be at least 6 characters';
+                    }
+                    return null;
+                  },
+                  maxLength: 6,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                      color: AppColor.iconColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordHidden = !_isPasswordHidden; // Toggle visibility
+                      });
+                    },
                   ),
-                )
-              ],
-            )
-          ],
-        ),
-      ),
-
-      body: Padding(
-        padding: const EdgeInsets.only(top: 110),
-        child: ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Email TextField
-                  Padding(
-                    padding: const EdgeInsets.only(right: 280),
-                    child: Text("Email", style: TextStyle(fontSize: 15)),
-                  ),
-                  CustomTextField(
-                    controller: _emailController,
-                    hintText: "Enter your email", // Only show hint text
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 250),
-                    child: Text("Password", style: TextStyle(fontSize: 15)),
-                  ),
-                  // Password TextField
-                  CustomTextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    hintText: "Enter your password", // Only show hint text
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _login,
+                ),
+                const SizedBox(height: 40),
+                Container(
+                  width: 280,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        loginUser(emailController.text, passwordController.text);
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueGrey.shade50, // Button color
-                      minimumSize: const Size(double.infinity, 40), // Thinner height (40)
-                      padding: const EdgeInsets.symmetric(vertical: 10), // Reduced padding
-                      shape: RoundedRectangleBorder( // Set border radius to 0 for square edges
-                        borderRadius: BorderRadius.zero,
+                      backgroundColor: Colors.indigo[900],
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 80),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: const Text(
-                      "Login",
-                      style: TextStyle(color: Colors.black38, fontSize: 20),
+                      'Login Now',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColor.texCilor,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 40),  // Add spacing
-                  Text(
-                    "Forgot your password?",
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {
+                    Get.off(() =>  RegisterScreen());
+
+                  },
+                  child:  Text(
+                    'Create New Account / Register',
                     style: TextStyle(
-                      color: Colors.indigo,
+                      color: Colors.indigo[900],
                       fontSize: 18,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  // Text to navigate to Register screen
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                      );
-                    },
-                    child: const Text(
-                      "____ or SignUp Using ____",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Center the images horizontally
-                    children: [
-                      // First image with text
-                      Column(
-                        children: [
-                          Image.network(
-                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9-kV0_iXislyi6r-XlD3UMPyWzZuQOcWZU6pppNEm6SxrNeYFqQdlVTVcPGU_aAjGaIc&usqp=CAU",
-                            width: 50,
-                            height: 50,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text("Twitter", style: TextStyle(fontSize: 14, color: Colors.blue)),
-                        ],
-                      ),
-                      // Second image with text
-                      Column(
-                        children: [
-                          Image.network(
-                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRySLCI_ES1btciGjehyRDx7C3-yhGC48XuRw&s",
-                            width: 50,
-                            height: 50,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text("Google", style: TextStyle(fontSize: 14, color: Colors.blue)),
-                        ],
-                      ),
-                      // Third image with text
-                      Column(
-                        children: [
-                          Image.network(
-                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvn4en8qCRCttwRAAKBgVd9TRjUts6KV25xg&s",
-                            width: 50,
-                            height: 50,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text("Facebook", style: TextStyle(fontSize: 14, color: Colors.indigo)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget
+  buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    bool obscureText = false,
+    required FormFieldValidator<String> validator,
+    Widget? suffixIcon,
+    int? maxLength
+  }) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.red),
+          suffixIcon: suffixIcon,
+          hintText: hintText,
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          counterText: "",
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        ),
+        maxLength: maxLength,
+        validator: validator,
+      ),
+    );
+  }
+
+  loginUser(String email, String password) async {
+    try {
+      var userCredential = await loginAuthentication.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      if (userCredential.user != null) {
+        Get.offAllNamed('/home'); // Navigate to Home using GetX
+        Fluttertoast.showToast(
+          msg: "Login successful",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Login failed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error: $e",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
   }
 }

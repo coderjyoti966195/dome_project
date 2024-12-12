@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../home_/homr_screen.dart';
+import 'loings_screen.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 8), () {
+    Timer(const Duration(seconds: 4), () {
         Get.off(() =>  HomepageScreen());
 
     });
@@ -37,6 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: FadeInDown(
                 duration: const Duration(milliseconds: 2000),
                 child: Image.asset(
+
                   "assets/image/splash_image1.png",
                   height: 200,
                   width: 200,

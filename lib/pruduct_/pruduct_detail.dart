@@ -173,7 +173,7 @@ class ProductDetailScreen extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(),
               child: Padding(
                 padding: const EdgeInsets.only( ),
                 child: Row(
